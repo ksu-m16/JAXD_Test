@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,8 +35,9 @@ public class Main {
 			JAXBContext jaxbContext = JAXBContext.newInstance(XuList.class);
 	 
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			XuList elt = (XuList) jaxbUnmarshaller.unmarshal(file);
-			System.out.println(elt);
+			XuList list = (XuList) jaxbUnmarshaller.unmarshal(file);
+			Collections.sort(list.getElements());
+			System.out.println(list);
 	 
 		  } catch (JAXBException e) {
 			e.printStackTrace();
@@ -48,7 +50,7 @@ public class Main {
 @XmlRootElement(name = "list")
 class XuList {
 	
-	@XmlElements(value = { @XmlElement(name = "li", type = ListElement.class) })
+	@XmlElements(value = { @XmlElement(name = "li", type = ListElement.class)})
 	private List<ListElement> elements = new LinkedList<ListElement>();	
  
     public List<ListElement> getElements()
@@ -66,8 +68,8 @@ class XuList {
  
 }
 
-@XmlType(name="li")
-class ListElement {
+@XmlType(name="li", propOrder = { "index", "elt"})
+class ListElement implements Comparable<ListElement>{
 
 	private int index;
 	private String elt;
@@ -92,6 +94,11 @@ class ListElement {
 	@XmlAttribute(name = "index")
 	public void setIndex(int index) {
 		this.index = index;
+	}
+
+	@Override
+	public int compareTo(ListElement o) {
+		return index - o.getIndex();
 	}
 	
 }
