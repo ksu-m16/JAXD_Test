@@ -1,8 +1,8 @@
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import javax.xml.bind.JAXBContext;
@@ -10,14 +10,12 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
- 
+import javax.xml.bind.annotation.XmlValue;
+import javax.xml.bind.annotation.XmlType; 
 
 
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 
@@ -33,57 +31,69 @@ public class Main {
 		try {
 			 
 			File file = new File("test.xml");
-			JAXBContext jaxbContext = JAXBContext.newInstance(ListElement.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(XuList.class);
 	 
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			ListElement elt = (ListElement) jaxbUnmarshaller.unmarshal(file);
+			XuList elt = (XuList) jaxbUnmarshaller.unmarshal(file);
 			System.out.println(elt);
 	 
 		  } catch (JAXBException e) {
 			e.printStackTrace();
 		  }
 		
-		//		DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
-//		f.setValidating(false);
-//		DocumentBuilder builder = f.newDocumentBuilder();
-//		Document doc = builder.parse(new File("test.xml"));
-//		
-//		StringBuffer content = new StringBuffer();
-//		
-//		Node node = doc.getChildNodes().item(0);
-//		NamedNodeMap attrs = node.getAttributes();
-//		
-//		for (int i = 0; i < attrs.getLength(); i++)
-//			if (attrs.item(i).getNodeType() == Node.TEXT_NODE) {
-//				System.out.println (attrs.item(i).getNodeValue());
-//			}
-//		}
-}
+	}
 
 }
 
-@XmlRootElement
-class ListElement {
+@XmlRootElement(name = "list")
+class XuList {
+	
+	@XmlElements(value = { @XmlElement(name = "li", type = ListElement.class) })
+	private List<ListElement> elements = new LinkedList<ListElement>();	
  
-	String elt;
-	int index;
- 
-	public String getElt() {
-		return elt;
+    public List<ListElement> getElements()
+    {
+        return elements;
+    }
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (ListElement elt: elements) {
+			sb.append(elt + "\n");
+		}
+		return sb.toString();
 	}
  
-	@XmlElement
+}
+
+@XmlType(name="li")
+class ListElement {
+
+	private int index;
+	private String elt;
+	
+	public String toString() {
+		return index + ". " + elt; 
+	}
+	
+	public String getElt() {
+	return elt;
+	}
+
+	@XmlValue
 	public void setElt(String elt) {
 		this.elt = elt;
 	}
-
-	public int getId() {
+	
+	public int getIndex() {
 		return index;
 	}
- 
-	@XmlAttribute
-	public void setId(int id) {
-		this.index = id;
+	
+	@XmlAttribute(name = "index")
+	public void setIndex(int index) {
+		this.index = index;
 	}
- 
+	
 }
+
+
